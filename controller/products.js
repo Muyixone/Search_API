@@ -2,10 +2,22 @@ const products = require('../models/product');
 const asyncWrapper = require('../middlewares/async-wrapper');
 
 const getAllProducts = asyncWrapper(async (req, res) => {
-  const product = await products.find({});
+  let match = {};
+
+  if (req.query.name) {
+    match.name = req.query.name;
+  }
+  if (req.query.featured) {
+    match.featured = req.query.featured;
+  }
+  let product = await products.aggregate([{ $match: match }]);
+
   res.status(200).json({
-    msg: 'Products available',
-    product,
+    nbHits: product.length,
+    data: {
+      msg: 'Products available',
+      product,
+    },
   });
 });
 
