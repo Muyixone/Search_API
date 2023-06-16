@@ -1,6 +1,6 @@
 ## Search_API
 
-An API that performs search queries.
+An API that performs search queries using aggregation functions.
 The results can be sorted and filtered
 
 - To filter by either name company, use the "search" key. For example

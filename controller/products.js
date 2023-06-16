@@ -5,7 +5,7 @@ const getAllProducts = asyncWrapper(async (req, res) => {
   let match = {};
 
   let page = req.query.page || 1;
-  let docsPerPage = 2;
+  let docsPerPage = 6;
   let skip = docsPerPage * (page - 1);
   let limit = docsPerPage;
 
@@ -49,19 +49,24 @@ const getAllProducts = asyncWrapper(async (req, res) => {
     match.featured = req.query.featured === 'true' ? true : false;
   }
 
-  // PAGINATION
+  // PAGINATION, AND SORTING
   let facet = {};
-  facet.data = [{ $skip: skip }, { $limit: limit }];
+  facet.data = [{ $skip: skip }, { $limit: limit }, { $sort: { price: -1 } }];
+  facet.dataInfo = [{ $group: { _id: null, count: { $sum: 1 } } }];
 
-  let product = await products.aggregate([
+  let pipeline = [
     { $match: match },
     { $facet: facet },
     {
       $project: {
-        docs: '$data',
+        data: '$data',
+        page: `${page}`,
+        totalDocs: { $first: '$dataInfo.count' },
       },
     },
-  ]);
+  ];
+
+  let product = await products.aggregate(pipeline);
 
   res.status(200).json({
     msg: 'Products available',
