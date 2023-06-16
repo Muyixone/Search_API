@@ -6,8 +6,8 @@ const getAllProducts = asyncWrapper(async (req, res) => {
 
   let page = req.query.page || 1;
   let docsPerPage = 6;
-  let skip = docsPerPage * (page - 1);
-  let limit = docsPerPage;
+  let limit = Number(req.query.limit) || docsPerPage;
+  let skip = limit * (page - 1);
 
   // FILTER QUERIES
   // filter by name or company
